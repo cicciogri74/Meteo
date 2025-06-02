@@ -1,43 +1,41 @@
-const CACHE_NAME = "meteo-cache-v1";
-const FILES_TO_CACHE = [
-  "/Meteo/",
-  "/Meteo/index.html",
-  "/Meteo/style.css",
-  "/Meteo/script.js",
-  "/Meteo/manifest.json",
-  "/Meteo/icons/icon-192.png",
-  "/Meteo/icons/icon-512.png"
+const CACHE_NAME = 'meteo-cache-v2';
+const OFFLINE_URL = 'offline.html';
+
+const ASSETS_TO_CACHE = [
+  '/',
+  '/Meteo/index.html',
+  '/Meteo/style.css',
+  '/Meteo/main.js',
+  '/Meteo/manifest.json',
+  '/Meteo/icon-192.png',
+  '/Meteo/icon-512.png',
+  '/Meteo/offline.html'
 ];
 
-// Install
-self.addEventListener("install", event => {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-// Activate
-self.addEventListener("activate", event => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keyList =>
+    caches.keys().then(cacheNames =>
       Promise.all(
-        keyList.map(key => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
+        cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
       )
     )
   );
   self.clients.claim();
 });
 
-// Fetch
-self.addEventListener("fetch", event => {
+self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request).catch(() =>
+      caches.match(event.request).then(response => response || caches.match(OFFLINE_URL))
+    )
   );
 });
