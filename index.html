@@ -5,23 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Stazione Meteo - IROME8355</title>
   <meta name="description" content="Dashboard meteo per la stazione IROME8355: dati in tempo reale, previsioni, radar e mappa." />
+  <meta name="theme-color" content="#0078D7" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service worker registrato:', reg))
-          .catch(err => console.log('Service worker non registrato:', err));
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registrato', reg))
+          .catch(err => console.error('Service Worker fallito', err));
       });
     }
-    <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('Service Worker registrato', reg))
-    .catch(err => console.error('Service Worker fallito', err));
-}
-</script>
   </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -101,28 +96,44 @@ if ('serviceWorker' in navigator) {
   </style>
 </head>
 <body>
-  <button id="theme-toggle"><i class="fas fa-adjust"></i></button>
+  <button id="theme-toggle" aria-label="Cambia tema"><i class="fas fa-adjust"></i></button>
   <header>
     <h1>Stazione Meteo - IROME8355</h1>
     <p>Dati in tempo reale da Weather Underground</p>
   </header>
   <div class="container">
-    <div class="card" id="realtime"><h2><i class="fas fa-clock"></i> Dati in Tempo Reale</h2><div class="flex">
-      <div><i class="fas fa-temperature-high"></i> Temperatura: <span id="temp">⏳</span> °C</div>
-      <div><i class="fas fa-tint"></i> Umidità: <span id="humidity">⏳</span>%</div>
-      <div><i class="fas fa-wind fa-spin"></i> Vento: <span id="wind_speed">⏳</span> km/h (<span id="wind_dir">⏳</span>°)</div>
-      <div><i class="fas fa-cloud-rain"></i> Pioggia Attuale: <span id="precip">⏳</span> mm</div>
-      <div><i class="fas fa-sun"></i> Indice UV: <span id="uv">⏳</span></div>
-      <div><i class="fas fa-thermometer-half"></i> Punto di Rugiada: <span id="dew">⏳</span> °C</div>
-      <div><i class="fas fa-clock-rotate-left"></i> Ultimo aggiornamento: <span id="obs_time">⏳</span></div>
-    </div></div>
-    <div class="card" id="forecast"><h2><i class="fas fa-calendar-day"></i> Previsioni</h2><div id="forecast-content"></div></div>
-    <div class="card"><h2><i class="fas fa-radar"></i> Radar Meteorologico</h2>
-      <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe></div>
-    <div class="card"><h2><i class="fas fa-chart-line"></i> Grafico Temperature Max/Min (5 Giorni)</h2><canvas id="tempChart"></canvas></div>
-    <div class="card"><h2><i class="fas fa-map-marked-alt"></i> Mappa della Stazione</h2><div id="map"></div></div>
-    <div><i class="fas fa-tachometer-alt"></i> Pressione: <span id="pressure">⏳</span> hPa</div>
-    <div><i class="fas fa-eye"></i> Visibilità: <span id="visibility">⏳</span> km</div>
+    <div class="card" id="realtime">
+      <h2><i class="fas fa-clock"></i> Dati in Tempo Reale</h2>
+      <div class="flex">
+        <div><i class="fas fa-temperature-high"></i> Temperatura: <span id="temp">⏳</span> °C</div>
+        <div><i class="fas fa-tint"></i> Umidità: <span id="humidity">⏳</span>%</div>
+        <div><i class="fas fa-wind fa-spin"></i> Vento: <span id="wind_speed">⏳</span> km/h (<span id="wind_dir">⏳</span>°)</div>
+        <div><i class="fas fa-cloud-rain"></i> Pioggia Attuale: <span id="precip">⏳</span> mm</div>
+        <div><i class="fas fa-sun"></i> Indice UV: <span id="uv">⏳</span></div>
+        <div><i class="fas fa-thermometer-half"></i> Punto di Rugiada: <span id="dew">⏳</span> °C</div>
+        <div><i class="fas fa-clock-rotate-left"></i> Ultimo aggiornamento: <span id="obs_time">⏳</span></div>
+      </div>
+    </div>
+    <div class="card" id="forecast">
+      <h2><i class="fas fa-calendar-day"></i> Previsioni</h2>
+      <div id="forecast-content"></div>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-radar"></i> Radar Meteorologico</h2>
+      <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-chart-line"></i> Grafico Temperature Max/Min (5 Giorni)</h2>
+      <canvas id="tempChart"></canvas>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-map-marked-alt"></i> Mappa della Stazione</h2>
+      <div id="map"></div>
+    </div>
+    <div class="card">
+      <div><i class="fas fa-tachometer-alt"></i> Pressione: <span id="pressure">⏳</span> hPa</div>
+      <div><i class="fas fa-eye"></i> Visibilità: <span id="visibility">⏳</span> km</div>
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -131,6 +142,7 @@ if ('serviceWorker' in navigator) {
     const STATION_ID = "IROME8355";
     const lat = 41.7708;
     const lon = 12.3400;
+
     async function fetchRealtime() {
       try {
         const url = `https://api.weather.com/v2/pws/observations/current?stationId=${STATION_ID}&format=json&units=m&apiKey=${API_KEY}`;
@@ -151,6 +163,7 @@ if ('serviceWorker' in navigator) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
     }
+
     async function fetchForecast() {
       const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
       try {
@@ -161,6 +174,7 @@ if ('serviceWorker' in navigator) {
         document.getElementById("forecast-content").innerHTML = "<p>⚠️ Previsioni non disponibili.</p>";
       }
     }
+
     async function fetchTemperatureChart() {
       const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
       try {
@@ -177,16 +191,27 @@ if ('serviceWorker' in navigator) {
           }
         });
       } catch {
-        document.getElementById("tempChart").replaceWith("⚠️ Impossibile caricare il grafico.");
+        const canvas = document.getElementById("tempChart");
+        const warning = document.createElement("div");
+        warning.textContent = "⚠️ Impossibile caricare il grafico.";
+        canvas.parentElement.replaceChild(warning, canvas);
       }
     }
+
     function initMap() {
       const map = L.map('map').setView([lat, lon], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
       L.marker([lat, lon]).addTo(map).bindPopup("Stazione IROME8355").openPopup();
     }
-    document.getElementById("theme-toggle").addEventListener("click", () => document.body.classList.toggle("dark"));
-    fetchRealtime(); fetchForecast(); fetchTemperatureChart(); initMap();
+
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+
+    fetchRealtime();
+    fetchForecast();
+    fetchTemperatureChart();
+    initMap();
     setInterval(fetchRealtime, 300000);
   </script>
 </body>
