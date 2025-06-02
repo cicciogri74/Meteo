@@ -143,7 +143,6 @@ if ('serviceWorker' in navigator) {
         document.getElementById("uv").textContent = obs.uv;
         document.getElementById("dew").textContent = obs.metric.dewpt;
         document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
-        document.getElementById("pressure").textContent = obs.metric.pressure;
       } catch (error) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
