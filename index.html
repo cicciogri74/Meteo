@@ -121,6 +121,7 @@ if ('serviceWorker' in navigator) {
       <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe></div>
     <div class="card"><h2><i class="fas fa-chart-line"></i> Grafico Temperature Max/Min (5 Giorni)</h2><canvas id="tempChart"></canvas></div>
     <div class="card"><h2><i class="fas fa-map-marked-alt"></i> Mappa della Stazione</h2><div id="map"></div></div>
+    <div><i class="fas fa-tachometer-alt"></i> Pressione: <span id="pressure">⏳</span> hPa</div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -143,6 +144,7 @@ if ('serviceWorker' in navigator) {
         document.getElementById("uv").textContent = obs.uv;
         document.getElementById("dew").textContent = obs.metric.dewpt;
         document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
+        document.getElementById("pressure").textContent = obs.metric.pressure;
       } catch (error) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
