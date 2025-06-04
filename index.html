@@ -1,55 +1,48 @@
-<!DOCTYPE html>
-<html lang="it">
+<!DOCTYPE html><html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Stazione Meteo - IROME8355</title>
-  <meta name="description" content="Dashboard meteo per la stazione IROME8355: dati in tempo reale, previsioni, radar e mappa." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meteo IROME8355</title>
+  <meta name="description" content="Dashboard meteo dinamica in stile Weather.com per la stazione IROME8355." />
   <meta name="theme-color" content="#0078D7" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    :root {
-      --bg-day: #e0f2ff;
-      --bg-night: #1a1a2e;
-      --color-day: #333;
-      --color-night: #fff;
-    }
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: var(--bg-day);
-      color: var(--color-day);
-      transition: background 0.5s, color 0.5s;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to top, #dfefff, #ffffff);
+      transition: background 0.5s;
+      color: #222;
     }
-    body.dark {
-      background: var(--bg-night);
-      color: var(--color-night);
+    .night {
+      background: linear-gradient(to top, #1a1a2e, #2c2c54);
+      color: white;
     }
     header {
-      background: #0078D7;
-      color: white;
-      padding: 1rem;
       text-align: center;
+      padding: 1.5rem;
+      background: rgba(0,0,0,0.2);
+      color: inherit;
     }
     .container {
-      padding: 1rem;
       max-width: 1000px;
       margin: auto;
+      padding: 1rem;
     }
     .card {
-      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(6px);
+      border-radius: 1rem;
       padding: 1rem;
       margin-bottom: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    body.dark .card {
-      background: #2c2c3c;
-      color: white;
+    .night .card {
+      background: rgba(40, 40, 60, 0.7);
     }
     .flex {
       display: flex;
@@ -69,27 +62,6 @@
       width: 100%;
       height: 300px;
     }
-    #theme-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #fff;
-      border: none;
-      padding: 0.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #offline-banner {
-      display: none;
-      text-align: center;
-      background: #e74c3c;
-      color: white;
-      padding: 0.5rem;
-      font-weight: bold;
-    }
-    #offline-banner.show {
-      display: block;
-    }
     @media (max-width: 600px) {
       iframe, #map {
         height: 300px;
@@ -98,141 +70,90 @@
   </style>
 </head>
 <body>
-  <div id="offline-banner">⚠️ Sei offline - i dati potrebbero non essere aggiornati</div>
-  <button id="theme-toggle" aria-label="Cambia tema"><i class="fas fa-adjust"></i></button>
   <header>
     <h1>Stazione Meteo - IROME8355</h1>
-    <p>Dati in tempo reale da Weather Underground</p>
+    <p id="condition-text">Dati aggiornati</p>
   </header>
   <div class="container">
     <div class="card" id="realtime">
       <h2><i class="fas fa-clock"></i> Dati in Tempo Reale</h2>
       <div class="flex">
-        <div><i class="fas fa-temperature-high"></i> Temperatura: <span id="temp">⏳</span> °C</div>
-        <div><i class="fas fa-tint"></i> Umidità: <span id="humidity">⏳</span>%</div>
-        <div><i class="fas fa-wind fa-spin"></i> Vento: <span id="wind_speed">⏳</span> km/h (<span id="wind_dir">⏳</span>°)</div>
-        <div><i class="fas fa-cloud-rain"></i> Pioggia Attuale: <span id="precip">⏳</span> mm</div>
-        <div><i class="fas fa-sun"></i> Indice UV: <span id="uv">⏳</span></div>
-        <div><i class="fas fa-thermometer-half"></i> Punto di Rugiada: <span id="dew">⏳</span> °C</div>
-        <div><i class="fas fa-clock-rotate-left"></i> Ultimo aggiornamento: <span id="obs_time">⏳</span></div>
+        <div>🌡️ Temperatura: <span id="temp">-</span> °C</div>
+        <div>💧 Umidità: <span id="humidity">-</span>%</div>
+        <div>🌬️ Vento: <span id="wind">-</span></div>
+        <div>☁️ Condizione: <span id="condition">-</span></div>
+        <div>📅 Ultimo aggiornamento: <span id="time">-</span></div>
       </div>
     </div>
-    <div class="card" id="forecast">
-      <h2><i class="fas fa-calendar-day"></i> Previsioni</h2>
-      <div id="forecast-content"></div>
-    </div>
     <div class="card">
-      <h2><i class="fas fa-radar"></i> Radar Meteorologico</h2>
-      <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe>
-    </div>
-    <div class="card">
-      <h2><i class="fas fa-chart-line"></i> Grafico Temperature Max/Min (5 Giorni)</h2>
+      <h2><i class="fas fa-chart-line"></i> Grafico Temperature 5 Giorni</h2>
       <canvas id="tempChart"></canvas>
     </div>
     <div class="card">
-      <h2><i class="fas fa-map-marked-alt"></i> Mappa della Stazione</h2>
-      <div id="map"></div>
+      <h2><i class="fas fa-radar"></i> Radar</h2>
+      <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&zoom=11&level=surface&overlay=radar&menu=false" loading="lazy"></iframe>
     </div>
     <div class="card">
-      <div><i class="fas fa-tachometer-alt"></i> Pressione: <span id="pressure">⏳</span> hPa</div>
-      <div><i class="fas fa-eye"></i> Visibilità: <span id="visibility">⏳</span> km</div>
+      <h2><i class="fas fa-map-marked-alt"></i> Mappa</h2>
+      <div id="map"></div>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const API_KEY = "fe246ce400ae43c2a46ce400ae13c256";
     const STATION_ID = "IROME8355";
-    const lat = 41.7708;
-    const lon = 12.3400;
+    const lat = 41.7708, lon = 12.34;async function fetchRealtime() {
+  const res = await fetch(`https://api.weather.com/v2/pws/observations/current?stationId=${STATION_ID}&format=json&units=m&apiKey=${API_KEY}`);
+  const data = await res.json();
+  const obs = data.observations[0];
+  document.getElementById("temp").textContent = obs.metric.temp;
+  document.getElementById("humidity").textContent = obs.humidity;
+  document.getElementById("wind").textContent = `${obs.metric.windSpeed} km/h da ${obs.winddir}°`;
+  document.getElementById("condition").textContent = obs.imperial.heatIndex <= 0 ? "Freddo" : "Caldo";
+  document.getElementById("time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
 
-    async function fetchRealtime() {
-      try {
-        const url = `https://api.weather.com/v2/pws/observations/current?stationId=${STATION_ID}&format=json&units=m&apiKey=${API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const obs = data.observations[0];
-        document.getElementById("temp").textContent = obs.metric.temp;
-        document.getElementById("humidity").textContent = obs.humidity;
-        document.getElementById("wind_speed").textContent = obs.metric.windSpeed;
-        document.getElementById("wind_dir").textContent = obs.winddir;
-        document.getElementById("precip").textContent = obs.metric.precipRate;
-        document.getElementById("uv").textContent = obs.uv;
-        document.getElementById("dew").textContent = obs.metric.dewpt;
-        document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
-        document.getElementById("pressure").textContent = obs.metric.pressure;
-        document.getElementById("visibility").textContent = obs.metric.visibility;
-      } catch {
-        document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
-      }
+  // Cambia lo sfondo dinamicamente
+  const hour = new Date(obs.obsTimeUtc).getHours();
+  const isNight = hour < 6 || hour > 20;
+  document.body.classList.toggle("night", isNight);
+  document.getElementById("condition-text").textContent = isNight ? "🌙 Notte" : "☀️ Giorno";
+}
+
+async function fetchForecast() {
+  const res = await fetch(`https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`);
+  const data = await res.json();
+  new Chart(document.getElementById("tempChart"), {
+    type: "line",
+    data: {
+      labels: data.dayOfWeek,
+      datasets: [
+        { label: "Max", data: data.temperatureMax, borderColor: "#e74c3c", backgroundColor: "rgba(231,76,60,0.2)", tension: 0.3, fill: true },
+        { label: "Min", data: data.temperatureMin, borderColor: "#3498db", backgroundColor: "rgba(52,152,219,0.2)", tension: 0.3, fill: true }
+      ]
     }
+  });
+}
 
-    async function fetchForecast() {
-      const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        document.getElementById("forecast-content").innerHTML = data.dayOfWeek.map((d, i) => `<div><strong>${d}:</strong> ${data.narrative[i]}</div>`).join("");
-      } catch {
-        document.getElementById("forecast-content").innerHTML = "<p>⚠️ Previsioni non disponibili.</p>";
-      }
-    }
+function initMap() {
+  const map = L.map('map').setView([lat, lon], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+  L.marker([lat, lon]).addTo(map).bindPopup("Stazione Meteo IROME8355").openPopup();
+}
 
-    async function fetchTemperatureChart() {
-      const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        new Chart(document.getElementById("tempChart"), {
-          type: "line",
-          data: {
-            labels: data.dayOfWeek,
-            datasets: [
-              { label: "Max (°C)", data: data.temperatureMax, borderColor: "#e74c3c", backgroundColor: "rgba(231,76,60,0.2)", tension: 0.4, fill: true },
-              { label: "Min (°C)", data: data.temperatureMin, borderColor: "#2980b9", backgroundColor: "rgba(41,128,185,0.2)", tension: 0.4, fill: true }
-            ]
-          }
-        });
-      } catch {
-        const canvas = document.getElementById("tempChart");
-        const warning = document.createElement("div");
-        warning.textContent = "⚠️ Impossibile caricare il grafico.";
-        canvas.parentElement.replaceChild(warning, canvas);
-      }
-    }
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('✅ Service Worker registrato'))
+      .catch(err => console.error('❌ Registrazione fallita:', err));
+  });
+}
 
-    function initMap() {
-      const map = L.map('map').setView([lat, lon], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
-      L.marker([lat, lon]).addTo(map).bindPopup("Stazione IROME8355").openPopup();
-    }
+fetchRealtime();
+fetchForecast();
+initMap();
+setInterval(fetchRealtime, 300000);
 
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-    });
-
-    // Detect offline mode
-    window.addEventListener('online', () => document.getElementById("offline-banner").classList.remove("show"));
-    window.addEventListener('offline', () => document.getElementById("offline-banner").classList.add("show"));
-    if (!navigator.onLine) document.getElementById("offline-banner").classList.add("show");
-
-    // PWA service worker registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(reg => console.log('✅ Service Worker registrato:', reg))
-          .catch(err => console.error('❌ Service Worker fallito:', err));
-      });
-    }
-
-    fetchRealtime();
-    fetchForecast();
-    fetchTemperatureChart();
-    initMap();
-    setInterval(fetchRealtime, 300000);
   </script>
 </body>
 </html>
