@@ -9,15 +9,6 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(reg => console.log('Service Worker registrato', reg))
-          .catch(err => console.error('Service Worker fallito', err));
-      });
-    }
-  </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -88,6 +79,17 @@
       border-radius: 8px;
       cursor: pointer;
     }
+    #offline-banner {
+      display: none;
+      text-align: center;
+      background: #e74c3c;
+      color: white;
+      padding: 0.5rem;
+      font-weight: bold;
+    }
+    #offline-banner.show {
+      display: block;
+    }
     @media (max-width: 600px) {
       iframe, #map {
         height: 300px;
@@ -96,6 +98,7 @@
   </style>
 </head>
 <body>
+  <div id="offline-banner">⚠️ Sei offline - i dati potrebbero non essere aggiornati</div>
   <button id="theme-toggle" aria-label="Cambia tema"><i class="fas fa-adjust"></i></button>
   <header>
     <h1>Stazione Meteo - IROME8355</h1>
@@ -135,6 +138,7 @@
       <div><i class="fas fa-eye"></i> Visibilità: <span id="visibility">⏳</span> km</div>
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -159,7 +163,7 @@
         document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
         document.getElementById("pressure").textContent = obs.metric.pressure;
         document.getElementById("visibility").textContent = obs.metric.visibility;
-      } catch (error) {
+      } catch {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
     }
@@ -200,13 +204,29 @@
 
     function initMap() {
       const map = L.map('map').setView([lat, lon], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
       L.marker([lat, lon]).addTo(map).bindPopup("Stazione IROME8355").openPopup();
     }
 
     document.getElementById("theme-toggle").addEventListener("click", () => {
       document.body.classList.toggle("dark");
     });
+
+    // Detect offline mode
+    window.addEventListener('online', () => document.getElementById("offline-banner").classList.remove("show"));
+    window.addEventListener('offline', () => document.getElementById("offline-banner").classList.add("show"));
+    if (!navigator.onLine) document.getElementById("offline-banner").classList.add("show");
+
+    // PWA service worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('✅ Service Worker registrato:', reg))
+          .catch(err => console.error('❌ Service Worker fallito:', err));
+      });
+    }
 
     fetchRealtime();
     fetchForecast();
