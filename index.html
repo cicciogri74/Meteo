@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stazione Meteo - IROME8355</title>
+  <meta name="description" content="Dashboard meteo per la stazione IROME8355: dati in tempo reale, previsioni, radar e mappa." />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service worker registrato:', reg))
+          .catch(err => console.log('Service worker non registrato:', err));
+      });
+    }
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('Service Worker registrato', reg))
+    .catch(err => console.error('Service Worker fallito', err));
+}
+</script>
+  </script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg-day: #e0f2ff;
+      --bg-night: #1a1a2e;
+      --color-day: #333;
+      --color-night: #fff;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: var(--bg-day);
+      color: var(--color-day);
+      transition: background 0.5s, color 0.5s;
+    }
+    body.dark {
+      background: var(--bg-night);
+      color: var(--color-night);
+    }
+    header {
+      background: #0078D7;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 1rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    body.dark .card {
+      background: #2c2c3c;
+      color: white;
+    }
+    .flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .flex > div {
+      flex: 1 1 200px;
+    }
+    iframe, #map {
+      width: 100%;
+      height: 400px;
+      border-radius: 10px;
+      border: none;
+    }
+    canvas {
+      width: 100%;
+      height: 300px;
+    }
+    #theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      iframe, #map {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="theme-toggle"><i class="fas fa-adjust"></i></button>
+  <header>
+    <h1>Stazione Meteo - IROME8355</h1>
+    <p>Dati in tempo reale da Weather Underground</p>
+  </header>
+  <div class="container">
+    <div class="card" id="realtime"><h2><i class="fas fa-clock"></i> Dati in Tempo Reale</h2><div class="flex">
+      <div><i class="fas fa-temperature-high"></i> Temperatura: <span id="temp">⏳</span> °C</div>
+      <div><i class="fas fa-tint"></i> Umidità: <span id="humidity">⏳</span>%</div>
+      <div><i class="fas fa-wind fa-spin"></i> Vento: <span id="wind_speed">⏳</span> km/h (<span id="wind_dir">⏳</span>°)</div>
+      <div><i class="fas fa-cloud-rain"></i> Pioggia Attuale: <span id="precip">⏳</span> mm</div>
+      <div><i class="fas fa-sun"></i> Indice UV: <span id="uv">⏳</span></div>
+      <div><i class="fas fa-thermometer-half"></i> Punto di Rugiada: <span id="dew">⏳</span> °C</div>
+      <div><i class="fas fa-clock-rotate-left"></i> Ultimo aggiornamento: <span id="obs_time">⏳</span></div>
+    </div></div>
+    <div class="card" id="forecast"><h2><i class="fas fa-calendar-day"></i> Previsioni</h2><div id="forecast-content"></div></div>
+    <div class="card"><h2><i class="fas fa-radar"></i> Radar Meteorologico</h2>
+      <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe></div>
+    <div class="card"><h2><i class="fas fa-chart-line"></i> Grafico Temperature Max/Min (5 Giorni)</h2><canvas id="tempChart"></canvas></div>
+    <div class="card"><h2><i class="fas fa-map-marked-alt"></i> Mappa della Stazione</h2><div id="map"></div></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const API_KEY = "fe246ce400ae43c2a46ce400ae13c256";
+    const STATION_ID = "IROME8355";
+    const lat = 41.7708;
+    const lon = 12.3400;
+    async function fetchRealtime() {
+      try {
+        const url = `https://api.weather.com/v2/pws/observations/current?stationId=${STATION_ID}&format=json&units=m&apiKey=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const obs = data.observations[0];
+        document.getElementById("temp").textContent = obs.metric.temp;
+        document.getElementById("humidity").textContent = obs.humidity;
+        document.getElementById("wind_speed").textContent = obs.metric.windSpeed;
+        document.getElementById("wind_dir").textContent = obs.winddir;
+        document.getElementById("precip").textContent = obs.metric.precipRate;
+        document.getElementById("uv").textContent = obs.uv;
+        document.getElementById("dew").textContent = obs.metric.dewpt;
+        document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
+      } catch (error) {
+        document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
+      }
+    }
+    async function fetchForecast() {
+      const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        document.getElementById("forecast-content").innerHTML = data.dayOfWeek.map((d, i) => `<div><strong>${d}:</strong> ${data.narrative[i]}</div>`).join("");
+      } catch {
+        document.getElementById("forecast-content").innerHTML = "<p>⚠️ Previsioni non disponibili.</p>";
+      }
+    }
+    async function fetchTemperatureChart() {
+      const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        new Chart(document.getElementById("tempChart"), {
+          type: "line",
+          data: {
+            labels: data.dayOfWeek,
+            datasets: [
+              { label: "Max (°C)", data: data.temperatureMax, borderColor: "#e74c3c", backgroundColor: "rgba(231,76,60,0.2)", tension: 0.4, fill: true },
+              { label: "Min (°C)", data: data.temperatureMin, borderColor: "#2980b9", backgroundColor: "rgba(41,128,185,0.2)", tension: 0.4, fill: true }
+            ]
+          }
+        });
+      } catch {
+        document.getElementById("tempChart").replaceWith("⚠️ Impossibile caricare il grafico.");
+      }
+    }
+    function initMap() {
+      const map = L.map('map').setView([lat, lon], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+      L.marker([lat, lon]).addTo(map).bindPopup("Stazione IROME8355").openPopup();
+    }
+    document.getElementById("theme-toggle").addEventListener("click", () => document.body.classList.toggle("dark"));
+    fetchRealtime(); fetchForecast(); fetchTemperatureChart(); initMap();
+    setInterval(fetchRealtime, 300000);
+  </script>
+</body>
+</html>
