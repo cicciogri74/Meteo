@@ -15,13 +15,6 @@
           .catch(err => console.log('Service worker non registrato:', err));
       });
     }
-    <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('Service Worker registrato', reg))
-    .catch(err => console.error('Service Worker fallito', err));
-}
-</script>
   </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -129,12 +122,32 @@ if ('serviceWorker' in navigator) {
     const STATION_ID = "IROME8355";
     const lat = 41.7708;
     const lon = 12.3400;
+
+    let lastPressure = null;
+
+    function calcolaPrevisioneLocale(pressureTrend, temp, humidity) {
+      let previsione = "⛅ Tempo stabile";
+
+      if (pressureTrend > 1) {
+        previsione = "🌤 Miglioramento del tempo";
+      } else if (pressureTrend < -1) {
+        previsione = "🌧 Possibile peggioramento (pioggia in arrivo)";
+      }
+
+      if (humidity > 90 && temp < 15) {
+        previsione += " con alta probabilità di nebbia.";
+      }
+
+      return previsione;
+    }
+
     async function fetchRealtime() {
       try {
         const url = `https://api.weather.com/v2/pws/observations/current?stationId=${STATION_ID}&format=json&units=m&apiKey=${API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         const obs = data.observations[0];
+
         document.getElementById("temp").textContent = obs.metric.temp;
         document.getElementById("humidity").textContent = obs.humidity;
         document.getElementById("wind_speed").textContent = obs.metric.windSpeed;
@@ -143,10 +156,23 @@ if ('serviceWorker' in navigator) {
         document.getElementById("uv").textContent = obs.uv;
         document.getElementById("dew").textContent = obs.metric.dewpt;
         document.getElementById("obs_time").textContent = new Date(obs.obsTimeUtc).toLocaleString("it-IT");
+
+        const pressure = obs.metric.pressure;
+        let trend = 0;
+        if (lastPressure !== null) {
+          trend = pressure - lastPressure;
+        }
+        lastPressure = pressure;
+
+        const previsione = calcolaPrevisioneLocale(trend, obs.metric.temp, obs.humidity);
+        const forecastBox = document.getElementById("forecast-content");
+        forecastBox.innerHTML += `<div><strong>📡 Tendenza locale:</strong> ${previsione}</div>`;
+
       } catch (error) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
     }
+
     async function fetchForecast() {
       const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
       try {
@@ -157,6 +183,7 @@ if ('serviceWorker' in navigator) {
         document.getElementById("forecast-content").innerHTML = "<p>⚠️ Previsioni non disponibili.</p>";
       }
     }
+
     async function fetchTemperatureChart() {
       const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
       try {
@@ -176,13 +203,19 @@ if ('serviceWorker' in navigator) {
         document.getElementById("tempChart").replaceWith("⚠️ Impossibile caricare il grafico.");
       }
     }
+
     function initMap() {
       const map = L.map('map').setView([lat, lon], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
       L.marker([lat, lon]).addTo(map).bindPopup("Stazione IROME8355").openPopup();
     }
+
     document.getElementById("theme-toggle").addEventListener("click", () => document.body.classList.toggle("dark"));
-    fetchRealtime(); fetchForecast(); fetchTemperatureChart(); initMap();
+
+    fetchRealtime();
+    fetchForecast();
+    fetchTemperatureChart();
+    initMap();
     setInterval(fetchRealtime, 300000);
   </script>
 </body>
