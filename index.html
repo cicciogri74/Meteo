@@ -247,5 +247,60 @@
     initMap();
     setInterval(fetchRealtime, 300000);
   </script>
+  <script>
+  // Richiesta permesso notifiche
+  if ('Notification' in window && navigator.serviceWorker) {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        console.log("✅ Notifiche abilitate.");
+      }
+    });
+  }
+
+  // Funzione che controlla condizioni critiche
+  function checkMeteoCritico(datiMeteo) {
+    const vento = datiMeteo.wind_kph || 0;
+    const pioggia = datiMeteo.precip_mm || 0;
+    const condizione = (datiMeteo.condition || "").toLowerCase();
+
+    let messaggio = '';
+
+    if (vento > 40) messaggio = '🌬️ Attenzione: vento forte!';
+    else if (pioggia > 10) messaggio = '🌧️ Pioggia intensa in arrivo!';
+    else if (condizione.includes('temporale') || condizione.includes('thunder')) {
+      messaggio = '⛈️ Temporale previsto!';
+    }
+
+    if (messaggio) {
+      inviaNotifica(messaggio);
+    }
+  }
+
+  // Invio notifica
+  function inviaNotifica(messaggio) {
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) {
+          reg.showNotification("Allerta Meteo", {
+            body: messaggio,
+            icon: 'icon-192.png',
+            vibrate: [200, 100, 200],
+            tag: 'allerta-meteo'
+          });
+        }
+      });
+    }
+  }
+
+  // 👉 ESEMPIO: chiama questa funzione dopo aver ricevuto i dati meteo
+  // Simulazione test temporale:
+  // const dati = { wind_kph: 50, precip_mm: 5, condition: "Vento forte" };
+  // checkMeteoCritico(dati);
+
+  // Quando ottieni i dati reali dalla tua API Wunderground:
+  // fetch(...).then(response => response.json()).then(data => {
+  //   checkMeteoCritico(data.current_observation); // Adatta in base alla struttura
+  // });
+  </script>
 </body>
 </html>
