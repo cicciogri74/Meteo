@@ -1,7 +1,6 @@
 body {
-  background-image: url('sfondo-arancione.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
+  font-family: sans-serif;
+  background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+  color: #333;
+  padding: 1rem;
 }
