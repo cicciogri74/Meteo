@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  background: #e0f2f1;
+  background: yellow; /* oppure usa un codice esadecimale */
   color: #333;
   padding: 1rem;
 }
