@@ -1,6 +1,10 @@
 body {
   font-family: sans-serif;
-  background: linear-gradient(to right, #ffecd2, #fcb69f); /* colori caldi pastello */
-  color: #333;
+  background-image: url('img/sfondo-arancione.jpg'); /* ← Percorso corretto */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  color: white; /* Meglio bianco su sfondo scuro o colorato */
   padding: 1rem;
 }
