@@ -1,6 +1,3 @@
 body {
-  font-family: sans-serif;
-  background: #ffdb58; /* oppure usa un codice esadecimale */
-  color: #333;
-  padding: 1rem;
+  background: linear-gradient(to bottom right, #00aaff, #ffffff);
 }
