@@ -1,6 +1,69 @@
+/* style.css */
+
 body {
-  font-family: sans-serif;
-  background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-  color: #333;
-  padding: 1rem;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://raw.githubusercontent.com/cicciogri74/Meteo/main/sfondo-arancione.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* semi-trasparente per migliorare la leggibilità */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+h1, h2, h3 {
+    color: #ffe082; /* giallo chiaro su arancione */
+    text-shadow: 1px 1px 2px #000;
+}
+
+p, span, li {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #fdfdfd;
+    text-shadow: 1px 1px 1px #000;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #fff3;
+}
+
+.button {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #f57c00;
+}
+
+.chart-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #ddd;
+    margin-top: 40px;
+    text-shadow: 1px 1px 1px #000;
 }
