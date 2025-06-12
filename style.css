@@ -1,10 +1,2 @@
-body {
-  font-family: sans-serif;
-  background-image: url('img/sfondo-arancione.jpg'); /* ← Percorso corretto */
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: fixed;
-  color: white; /* Meglio bianco su sfondo scuro o colorato */
-  padding: 1rem;
-}
+background: url('sfondo.jpg') no-repeat center center fixed;
+background-size: cover;
