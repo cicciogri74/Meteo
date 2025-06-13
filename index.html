@@ -26,16 +26,18 @@
       --color-night: #fff;
     }
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: var(--bg-day);
-      color: var(--color-day);
-      transition: background 0.5s, color 0.5s;
-    }
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: url('sfondo.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--color-day);
+  transition: background 0.5s, color 0.5s;
+      }
     body.dark {
-      background: var(--bg-night);
-      color: var(--color-night);
-    }
+  background: url('sfondo-notte.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--color-night);
+}
     header {
       background: #0078D7;
       color: white;
