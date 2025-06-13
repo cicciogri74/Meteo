@@ -1,4 +1,4 @@
-/* style.css - Tema chiaro con sfondo arancione e transizioni */
+/* style.css */
 
 body {
     margin: 0;
@@ -6,101 +6,64 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: url('https://raw.githubusercontent.com/cicciogri74/Meteo/main/sfondo-arancione.jpg') no-repeat center center fixed;
     background-size: cover;
-    color: #333;
-    transition: background 0.6s ease;
+    color: #ffffff;
 }
 
-/* Contenitore principale con effetto vetro */
 .container {
     max-width: 1200px;
     margin: auto;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    transition: all 0.5s ease;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* semi-trasparente per migliorare la leggibilità */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Titoli */
 h1, h2, h3 {
-    color: #444;
-    text-align: center;
-    text-shadow: 0 1px 0 #fff;
-    transition: color 0.4s ease;
+    color: #ffe082; /* giallo chiaro su arancione */
+    text-shadow: 1px 1px 2px #000;
 }
 
-/* Testo normale */
 p, span, li {
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #222;
-    transition: color 0.3s ease;
+    color: #fdfdfd;
+    text-shadow: 1px 1px 1px #000;
 }
 
-/* Box / card meteo */
 .card {
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #fff3;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* Pulsanti */
 .button {
     background-color: #ff9800;
-    color: #fff;
-    padding: 12px 24px;
+    color: white;
+    padding: 10px 20px;
     border: none;
     border-radius: 8px;
-    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 .button:hover {
     background-color: #f57c00;
-    transform: scale(1.05);
 }
 
-/* Grafici e contenitori */
 .chart-container {
-    background: rgba(255, 255, 255, 0.6);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 20px;
 }
 
-/* Footer */
 .footer {
     text-align: center;
     font-size: 0.9rem;
-    color: #444;
+    color: #ddd;
     margin-top: 40px;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-/* Responsive base */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 1.6rem;
-    }
-
-    .button {
-        padding: 10px 20px;
-        font-size: 1rem;
-    }
+    text-shadow: 1px 1px 1px #000;
     }
