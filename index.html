@@ -50,12 +50,10 @@
       margin: auto;
     }
     .card {
-      background: #AFEEEE; /* Colore PaleTurquoise */
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+  background: rgba(255, 255, 255, 0.5); /* bianco al 50% di trasparenza */
+  backdrop-filter: blur(4px); /* effetto vetro */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* bordo leggero */
+}
     body.dark .card {
       background: #2c2c3c;
       color: white;
