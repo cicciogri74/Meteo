@@ -279,10 +279,13 @@
     document.getElementById("theme-toggle").addEventListener("click", () => document.body.classList.toggle("dark"));
 
     fetchRealtime();
-    fetchForecast();
-    fetchTemperatureChart();
-    initMap();
-    setInterval(fetchRealtime, 5 * 60 * 1000); // aggiorna i dati ogni 5 minuti
+fetchForecast();
+fetchTemperatureChart();
+initMap();
+
+setInterval(fetchRealtime, 5 * 60 * 1000);       // ogni 5 minuti
+setInterval(fetchForecast, 60 * 60 * 1000);      // ogni 1 ora
+setInterval(fetchTemperatureChart, 10 * 60 * 1000); // ogni 10 minuti
   </script>
   <script>
   // Richiesta permesso notifiche
@@ -338,6 +341,14 @@
   // fetch(...).then(response => response.json()).then(data => {
   //   checkMeteoCritico(data.current_observation); // Adatta in base alla struttura
   // });
+    // Aggiorna i dati in tempo reale ogni 5 minuti
+setInterval(fetchRealtime, 5 * 60 * 1000);
+
+// Aggiorna le previsioni ogni ora
+setInterval(fetchForecast, 60 * 60 * 1000);
+
+// Aggiorna il grafico della temperatura ogni 10 minuti
+setInterval(fetchTemperatureChart, 10 * 60 * 1000);
   </script>
 </body>
 </html>
