@@ -282,7 +282,7 @@
     fetchForecast();
     fetchTemperatureChart();
     initMap();
-    setInterval(fetchRealtime, 300000);
+    setInterval(fetchRealtime, 5 * 60 * 1000); // aggiorna i dati ogni 5 minuti
   </script>
   <script>
   // Richiesta permesso notifiche
