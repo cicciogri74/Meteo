@@ -232,7 +232,7 @@
 
         const previsione = calcolaPrevisioneLocale(trend, obs.metric.temp, obs.humidity);
         const forecastBox = document.getElementById("forecast-content");
-        forecastBox.innerHTML = `<div><strong>📡 Tendenza locale:</strong> ${previsione}</div>`;
+        forecastBox.innerHTML += `<div><strong>📡 Tendenza locale:</strong> ${previsione}</div>`;
       } catch (error) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
