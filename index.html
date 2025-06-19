@@ -232,7 +232,34 @@
 
         const previsione = calcolaPrevisioneLocale(trend, obs.metric.temp, obs.humidity);
         const forecastBox = document.getElementById("forecast-content");
-        forecastBox.innerHTML += `<div><strong>📡 Tendenza locale:</strong> ${previsione}</div>`;
+
+// Rimuovi la tendenza precedente, se presente
+const vecchiaTendenza = forecastBox.querySelector(".tendenza-locale");
+if (vecchiaTendenza) vecchiaTendenza.remove();
+
+// Crea un nuovo blocco HTML con stile
+const tendenza = document.createElement("div");
+tendenza.className = "tendenza-locale";
+tendenza.innerHTML = `
+  <div style="
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 2px dashed #ffa631;
+    background-color: rgba(255, 246, 232, 0.9);
+    border-radius: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+  ">
+    <i class="fas fa-mountain-sun" style="color: #ffa631;"></i>
+    <span><strong>Tendenza locale:</strong> ${previsione}</span>
+  </div>
+`;
+
+// Aggiungila in fondo al box previsioni
+forecastBox.appendChild(tendenza);
       } catch (error) {
         document.getElementById("realtime").innerHTML += "<p>⚠️ Dati non disponibili.</p>";
       }
