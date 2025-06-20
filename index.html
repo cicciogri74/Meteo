@@ -27,6 +27,54 @@
     }
     body {
   font-family: Arial, sans-serif;
+      .hourly-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  scroll-snap-type: x mandatory;
+  white-space: nowrap;
+  font-weight: bold;
+}
+.hourly-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.hourly-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+.hourly-scroll div {
+  min-width: 90px;
+  scroll-snap-align: start;
+  padding: 0.5rem;
+  background-color: #fff9e6;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  text-align: center;
+  font-size: 0.9rem;
+}
+.hourly-scroll .current-hour {
+  border: 2px solid #ffa631;
+  background-color: #fff0d4;
+}
+body.dark .hourly-scroll {
+  background: rgba(40, 40, 60, 0.7);
+}
+body.dark .hourly-scroll div {
+  background-color: #2c2c3c;
+  color: white;
+}
+body.dark .hourly-scroll .current-hour {
+  border: 2px solid #ffa631;
+  background-color: #403c3c;
+}
+.hourly-scroll img {
+  width: 40px;
+  height: 40px;
+  margin: 0.3rem 0;
+}
   margin: 0;
   background: url('sfondo.jpg') no-repeat center center fixed;
   background-size: cover;
@@ -126,6 +174,12 @@
   </iframe>
 </div>
     <div class="card" id="forecast"><h2><i class="fas fa-calendar-day"></i> Previsioni</h2><div id="forecast-content"></div></div>
+    <div class="card">
+  <h2><i class="fas fa-clock"></i> Previsioni Orarie (oggi)</h2>
+  <div class="hourly-scroll" id="hourly-forecast">
+    ⏳ Caricamento previsioni orarie...
+  </div>
+</div>
     <div class="card"><h2><i class="fas fa-radar"></i> Radar Meteorologico</h2>
       <iframe src="https://embed.windy.com/embed2.html?lat=41.7708&lon=12.34&detailLat=41.7708&detailLon=12.34&width=100%&height=450&zoom=11&level=surface&overlay=radar&menu=false&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C" loading="lazy"></iframe></div>
     <div class="card">
@@ -310,7 +364,42 @@ setInterval(fetchRealtime, 300000); // aggiorna ogni 5 minuti
 fetchForecast();
 fetchTemperatureChart();
 initMap();
+async function fetchHourlyForecast() {
+  const url = `https://api.weather.com/v3/wx/forecast/hourly/12hour?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const container = document.getElementById("hourly-forecast");
+    container.innerHTML = "";
 
+    const nowHour = new Date().getHours();
+
+    data.temperature.forEach((temp, i) => {
+      const timeStr = data.validTimeLocal[i].slice(11, 16); // "14:00"
+      const hour = parseInt(timeStr.split(":")[0]);
+      const icon = data.iconCode[i];
+      const iconUrl = `https://weather.com/images/icons/${icon}.png`; // fallback
+      const svgIcon = `https://assets.weather.com/weather/icons/v3/60x60/day/${icon}.png`;
+
+      const isCurrent = hour === nowHour;
+
+      const div = document.createElement("div");
+      div.className = isCurrent ? "current-hour" : "";
+      div.innerHTML = `
+        ${timeStr}<br>
+        <img src="${svgIcon}" alt="icon"><br>
+        ${temp}°C
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    document.getElementById("hourly-forecast").innerHTML = "<p>⚠️ Dati orari non disponibili.</p>";
+  }
+}
+
+// Avvio e aggiornamento ogni ora
+fetchHourlyForecast();
+setInterval(fetchHourlyForecast, 60 * 60 * 1000);
 setInterval(fetchRealtime, 5 * 60 * 1000);       // ogni 5 minuti
 setInterval(fetchForecast, 60 * 60 * 1000);      // ogni 1 ora
 setInterval(fetchTemperatureChart, 10 * 60 * 1000); // ogni 10 minuti
