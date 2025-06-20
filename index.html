@@ -364,48 +364,34 @@ setInterval(fetchRealtime, 300000); // aggiorna ogni 5 minuti
 fetchForecast();
 fetchTemperatureChart();
 initMap();
-    function getOpenMeteoIcon(code) {
-  const icons = {
-    0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️",
-    45: "🌫", 48: "🌫", 51: "🌦", 61: "🌧",
-    63: "🌧", 65: "🌧", 71: "❄️", 95: "⛈️",
-  };
-
-  return `https://raw.githubusercontent.com/Yama-Tomo/OpenMeteoIcons/main/png/60/${code}.png`;
-}
-async function fetchHourlyForecast() {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
-
+    async function fetchHourlyForecast() {
+  const url = `https://api.weather.com/v3/wx/forecast/hourly/12hour?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
     const container = document.getElementById("hourly-forecast");
     container.innerHTML = "";
 
-    const now = new Date();
-    const currentHour = now.getHours();
+    const nowHour = new Date().getHours();
 
-    const hours = data.hourly.time;
-    const temps = data.hourly.temperature_2m;
-    const codes = data.hourly.weathercode;
+    data.temperature.forEach((temp, i) => {
+      const timeStr = data.validTimeLocal[i].slice(11, 16); // "14:00"
+      const hour = parseInt(timeStr.split(":")[0]);
+      const icon = data.iconCode[i];
+      const iconUrl = `https://weather.com/images/icons/${icon}.png`; // fallback
+      const svgIcon = `https://assets.weather.com/weather/icons/v3/60x60/day/${icon}.png`;
 
-    for (let i = 0; i < 12; i++) {
-      const timeStr = hours[i + currentHour].slice(11, 16); // tipo "14:00"
-      const temp = temps[i + currentHour];
-      const code = codes[i + currentHour];
-
-      const isCurrent = (i === 0);
-      const iconUrl = getOpenMeteoIcon(code);
+      const isCurrent = hour === nowHour;
 
       const div = document.createElement("div");
       div.className = isCurrent ? "current-hour" : "";
       div.innerHTML = `
         ${timeStr}<br>
-        <img src="${iconUrl}" alt="icon"><br>
+        <img src="${svgIcon}" alt="icon"><br>
         ${temp}°C
       `;
       container.appendChild(div);
-    }
+    });
   } catch (err) {
     document.getElementById("hourly-forecast").innerHTML = "<p>⚠️ Dati orari non disponibili.</p>";
   }
