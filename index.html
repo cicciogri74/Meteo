@@ -365,10 +365,16 @@ fetchForecast();
 fetchTemperatureChart();
 initMap();
 async function fetchHourlyForecast() {
-  const url = `https://api.weather.com/v3/wx/forecast/hourly/12hour?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
+  const url = `https://api.weather.com/v3/wx/forecast/hourly/12hour?geocode=${lat},${lon}&format=json&units=m&language=it-IT&fields=temperature,iconCode,validTimeLocal&apiKey=${API_KEY}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
+
+    if (!data.temperature || !data.validTimeLocal || !data.iconCode) {
+      document.getElementById("hourly-forecast").innerHTML = "<p>⚠️ Dati orari non disponibili.</p>";
+      return;
+    }
+
     const container = document.getElementById("hourly-forecast");
     container.innerHTML = "";
 
@@ -378,8 +384,7 @@ async function fetchHourlyForecast() {
       const timeStr = data.validTimeLocal[i].slice(11, 16); // "14:00"
       const hour = parseInt(timeStr.split(":")[0]);
       const icon = data.iconCode[i];
-      const iconUrl = `https://weather.com/images/icons/${icon}.png`; // fallback
-      const svgIcon = `https://assets.weather.com/weather/icons/v3/60x60/day/${icon}.png`;
+      const iconUrl = `https://assets.weather.com/weather/icons/v3/60x60/day/${icon}.png`;
 
       const isCurrent = hour === nowHour;
 
@@ -387,7 +392,7 @@ async function fetchHourlyForecast() {
       div.className = isCurrent ? "current-hour" : "";
       div.innerHTML = `
         ${timeStr}<br>
-        <img src="${svgIcon}" alt="icon"><br>
+        <img src="${iconUrl}" alt="icon"><br>
         ${temp}°C
       `;
       container.appendChild(div);
