@@ -364,6 +364,15 @@ setInterval(fetchRealtime, 300000); // aggiorna ogni 5 minuti
 fetchForecast();
 fetchTemperatureChart();
 initMap();
+    function getOpenMeteoIcon(code) {
+  const icons = {
+    0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️",
+    45: "🌫", 48: "🌫", 51: "🌦", 61: "🌧",
+    63: "🌧", 65: "🌧", 71: "❄️", 95: "⛈️",
+  };
+
+  return `https://raw.githubusercontent.com/Yama-Tomo/OpenMeteoIcons/main/png/60/${code}.png`;
+}
 async function fetchHourlyForecast() {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
 
@@ -401,12 +410,7 @@ async function fetchHourlyForecast() {
     document.getElementById("hourly-forecast").innerHTML = "<p>⚠️ Dati orari non disponibili.</p>";
   }
 }
-    function getOpenMeteoIcon(code) {
-  const icons = {
-    0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️",
-    45: "🌫", 48: "🌫", 51: "🌦", 61: "🌧",
-    63: "🌧", 65: "🌧", 71: "❄️", 95: "⛈️",
-  };
+    
 
   return `https://raw.githubusercontent.com/Yama-Tomo/OpenMeteoIcons/main/png/60/${code}.png`;
     }
