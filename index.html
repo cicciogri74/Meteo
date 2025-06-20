@@ -364,7 +364,7 @@ setInterval(fetchRealtime, 300000); // aggiorna ogni 5 minuti
 fetchForecast();
 fetchTemperatureChart();
 initMap();
-    async function fetchHourlyForecast() {
+async function fetchHourlyForecast() {
   const url = `https://api.weather.com/v3/wx/forecast/hourly/12hour?geocode=${lat},${lon}&format=json&units=m&language=it-IT&apiKey=${API_KEY}`;
   try {
     const res = await fetch(url);
