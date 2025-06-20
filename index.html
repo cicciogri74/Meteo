@@ -401,6 +401,15 @@ async function fetchHourlyForecast() {
     document.getElementById("hourly-forecast").innerHTML = "<p>⚠️ Dati orari non disponibili.</p>";
   }
 }
+    function getOpenMeteoIcon(code) {
+  const icons = {
+    0: "☀️", 1: "🌤", 2: "⛅", 3: "☁️",
+    45: "🌫", 48: "🌫", 51: "🌦", 61: "🌧",
+    63: "🌧", 65: "🌧", 71: "❄️", 95: "⛈️",
+  };
+
+  return `https://raw.githubusercontent.com/Yama-Tomo/OpenMeteoIcons/main/png/60/${code}.png`;
+    }
 // Avvio e aggiornamento ogni ora
 fetchHourlyForecast();
 setInterval(fetchHourlyForecast, 60 * 60 * 1000);
